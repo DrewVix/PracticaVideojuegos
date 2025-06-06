@@ -94,7 +94,6 @@ class EditGameActivity : AppCompatActivity() {
                     // Load selected players and platforms for this game
                     selectedPlayers = repository.getPlayersForGame(gameId).toMutableList()
                     selectedPlatforms = repository.getPlatformsForGame(gameId).toMutableList()
-
                     // Setup dropdowns and display selected items
                     setupStatusDropdown()
                     setupPlayersDropdown()
@@ -251,6 +250,9 @@ class EditGameActivity : AppCompatActivity() {
             binding.textInputLayoutGameStatus.error = "Status is required"
             return
         }
+        if (selectedImageUri.isNullOrEmpty()) {
+            selectedImageUri = currentGame.image
+            }
 
         // Update game object
         val updatedGame = currentGame.copy(
