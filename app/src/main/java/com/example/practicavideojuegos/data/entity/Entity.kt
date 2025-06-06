@@ -16,7 +16,7 @@ data class Game(
     val name: String,
     val status: String,
     val genre: String,
-    val image: Int
+    val image: String? = null
 )
 
 @Entity(tableName = "platforms")

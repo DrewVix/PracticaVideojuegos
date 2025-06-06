@@ -60,6 +60,15 @@ class GameRepository(private val database: GameDatabase) {
         relationshipDao.removePlatformFromGame(gameId, platformId)
     }
 
+    // ===== NEW FUNCTIONS FOR EDIT GAME =====
+    suspend fun removeAllPlayersFromGame(gameId: Int) {
+        relationshipDao.removeAllPlayersFromGame(gameId)
+    }
+
+    suspend fun removeAllPlatformsFromGame(gameId: Int) {
+        relationshipDao.removeAllPlatformsFromGame(gameId)
+    }
+
     // Get all relationships
     suspend fun getAllGamePlayerRelationships() = relationshipDao.getAllGamePlayerRelationships()
     suspend fun getAllGamePlatformRelationships() = relationshipDao.getAllGamePlatformRelationships()

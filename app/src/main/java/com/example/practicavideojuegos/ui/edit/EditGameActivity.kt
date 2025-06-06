@@ -1,4 +1,4 @@
-package com.example.practicavideojuegos.ui.create
+package com.example.practicavideojuegos.ui.edit
 
 import android.Manifest
 import android.content.Intent
@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.example.practicavideojuegos.R
 import com.example.practicavideojuegos.data.entity.Game
@@ -19,13 +20,14 @@ import com.example.practicavideojuegos.data.entity.Player
 import com.example.practicavideojuegos.data.entity.Platform
 import com.example.practicavideojuegos.data.db.GameDatabase
 import com.example.practicavideojuegos.data.repository.GameRepository
-import com.example.practicavideojuegos.databinding.ActivityCreateGameBinding
+import com.example.practicavideojuegos.databinding.ActivityEditGameBinding
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
-class CreateGameActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityCreateGameBinding
+class EditGameActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityEditGameBinding
     private lateinit var repository: GameRepository
+    private lateinit var currentGame: Game
     private var selectedImageUri: String? = null
 
     // Lists to store all available players and platforms
@@ -36,13 +38,14 @@ class CreateGameActivity : AppCompatActivity() {
     private var selectedPlayers = mutableListOf<Player>()
     private var selectedPlatforms = mutableListOf<Platform>()
 
-
+    companion object {
+        const val EXTRA_GAME_ID = "extra_game_id"
+    }
 
     private val documentPickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
-            // Tomar permisos persistentes
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             contentResolver.takePersistableUriPermission(uri, takeFlags)
 
@@ -53,21 +56,69 @@ class CreateGameActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCreateGameBinding.inflate(layoutInflater)
+        binding = ActivityEditGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Create Game"
+        supportActionBar?.title = "Edit Game"
 
         val database = GameDatabase.getDatabase(this)
         repository = GameRepository(database)
 
-        setupStatusDropdown()
+        val gameId = intent.getIntExtra(EXTRA_GAME_ID, -1)
+        if (gameId != -1) {
+            loadGameData(gameId)
+        } else {
+            Toast.makeText(this, "Invalid game ID", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
         setupImageSelection()
         setupSaveButton()
+        setupCancelButton()
+    }
 
-        // Load players and platforms, then setup dropdowns
-        loadPlayersAndPlatforms()
+    private fun loadGameData(gameId: Int) {
+        lifecycleScope.launch {
+            try {
+                // Load game details
+                val game = repository.getGameById(gameId)
+                if (game != null) {
+                    currentGame = game
+                    displayGameInfo(game)
+
+                    // Load all players and platforms
+                    allPlayers = repository.getAllPlayers().toMutableList()
+                    allPlatforms = repository.getAllPlatforms().toMutableList()
+
+                    // Load selected players and platforms for this game
+                    selectedPlayers = repository.getPlayersForGame(gameId).toMutableList()
+                    selectedPlatforms = repository.getPlatformsForGame(gameId).toMutableList()
+
+                    // Setup dropdowns and display selected items
+                    setupStatusDropdown()
+                    setupPlayersDropdown()
+                    setupPlatformsDropdown()
+
+                    // Display already selected players and platforms as chips
+                    selectedPlayers.forEach { addPlayerChip(it) }
+                    selectedPlatforms.forEach { addPlatformChip(it) }
+                } else {
+                    Toast.makeText(this@EditGameActivity, "Game not found", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@EditGameActivity, "Error loading game: ${e.message}", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+    }
+
+    private fun displayGameInfo(game: Game) {
+        binding.editTextGameName.setText(game.name)
+        binding.editTextGameGenre.setText(game.genre)
+        binding.autoCompleteGameStatus.setText(game.status)
+        binding.imageViewGamePreview.setImageURI(game.image?.toUri())
     }
 
     private fun setupStatusDropdown() {
@@ -77,32 +128,14 @@ class CreateGameActivity : AppCompatActivity() {
     }
 
     private fun setupImageSelection() {
-        // Configurar el botón para seleccionar imagen
         binding.buttonSelectImage.setOnClickListener {
             openGallery()
         }
-
-        // Mostrar imagen por defecto
-        binding.imageViewGamePreview.setImageResource(R.drawable.image_placeholder_background)
     }
-
 
 
     private fun openGallery() {
         documentPickerLauncher.launch(arrayOf("image/*"))
-    }
-
-
-    private fun loadPlayersAndPlatforms() {
-        lifecycleScope.launch {
-            // Load all players
-            allPlayers = repository.getAllPlayers().toMutableList()
-            setupPlayersDropdown()
-
-            // Load all platforms
-            allPlatforms = repository.getAllPlatforms().toMutableList()
-            setupPlatformsDropdown()
-        }
     }
 
     private fun setupPlayersDropdown() {
@@ -189,11 +222,17 @@ class CreateGameActivity : AppCompatActivity() {
 
     private fun setupSaveButton() {
         binding.buttonSaveGame.setOnClickListener {
-            saveGame()
+            updateGame()
         }
     }
 
-    private fun saveGame() {
+    private fun setupCancelButton() {
+        binding.buttonCancelEdit.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun updateGame() {
         val name = binding.editTextGameName.text.toString().trim()
         val genre = binding.editTextGameGenre.text.toString().trim()
         val status = binding.autoCompleteGameStatus.text.toString().trim()
@@ -213,44 +252,47 @@ class CreateGameActivity : AppCompatActivity() {
             return
         }
 
-        val gameId = System.currentTimeMillis().toInt() // Simple ID generation
-
-        // Crear el juego con la imagen seleccionada
-        val game = Game(
-            id = gameId,
+        // Update game object
+        val updatedGame = currentGame.copy(
             name = name,
             genre = genre,
             status = status,
-            image =  selectedImageUri?.toString()
+            image = selectedImageUri.toString()
         )
 
         lifecycleScope.launch {
             try {
-                // Insert the game first
-                repository.insertGame(game)
+                // Update the game
+                repository.updateGame(updatedGame)
+
+                // Clear existing player and platform associations
+                repository.removeAllPlayersFromGame(currentGame.id)
+                repository.removeAllPlatformsFromGame(currentGame.id)
 
                 // Assign selected players to the game
                 selectedPlayers.forEach { player ->
-                    repository.assignGameToPlayer(gameId, player.id)
+                    repository.assignGameToPlayer(currentGame.id, player.id)
                 }
 
                 // Assign selected platforms to the game
                 selectedPlatforms.forEach { platform ->
-                    repository.assignGameToPlatform(gameId, platform.id)
+                    repository.assignGameToPlatform(currentGame.id, platform.id)
                 }
 
                 Toast.makeText(
-                    this@CreateGameActivity,
-                    "Game saved with ${selectedPlayers.size} players and ${selectedPlatforms.size} platforms",
+                    this@EditGameActivity,
+                    "Game updated successfully",
                     Toast.LENGTH_LONG
                 ).show()
 
+                // Return to previous activity
+                setResult(RESULT_OK)
                 finish()
 
             } catch (e: Exception) {
                 Toast.makeText(
-                    this@CreateGameActivity,
-                    "Error saving game: ${e.message}",
+                    this@EditGameActivity,
+                    "Error updating game: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }

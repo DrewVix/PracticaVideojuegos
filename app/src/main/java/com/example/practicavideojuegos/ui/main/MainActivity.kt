@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         val database = GameDatabase.getDatabase(this)
         repository = GameRepository(database)
 
-        // Insertar datos de prueba y luego cargar
         insertTestDataAndLoad()
     }
 
@@ -81,14 +80,6 @@ class MainActivity : AppCompatActivity() {
                     2 -> startActivity(Intent(this, CreatePlatformActivity::class.java))
                 }
             }
-            .show()
-    }
-
-    private fun showGameDetails(game: Game) {
-        AlertDialog.Builder(this)
-            .setTitle(game.name)
-            .setMessage("Genre: ${game.genre}\nStatus: ${game.status}")
-            .setPositiveButton("OK", null)
             .show()
     }
 
@@ -136,16 +127,16 @@ class MainActivity : AppCompatActivity() {
 
         // Insert test games
         val testGames = listOf(
-            Game(1, "The Legend of Zelda: Breath of the Wild", "Completed", "Adventure", R.drawable.image_placeholder_background),
-            Game(2, "Super Mario Odyssey", "Playing", "Platform", R.drawable.image_placeholder_background),
-            Game(3, "Cyberpunk 2077", "Pending", "RPG", R.drawable.image_placeholder_background),
-            Game(4, "FIFA 24", "Playing", "Sports", R.drawable.image_placeholder_background),
-            Game(5, "Call of Duty: Modern Warfare III", "Completed", "FPS", R.drawable.image_placeholder_background),
-            Game(6, "Minecraft", "Playing", "Sandbox", R.drawable.image_placeholder_background),
-            Game(7, "Grand Theft Auto V", "Completed", "Action", R.drawable.image_placeholder_background),
-            Game(8, "Among Us", "Paused", "Social Deduction", R.drawable.image_placeholder_background),
-            Game(9, "Fortnite", "Playing", "Battle Royale", R.drawable.image_placeholder_background),
-            Game(10, "The Witcher 3: Wild Hunt", "Pending", "RPG", R.drawable.image_placeholder_background)
+            Game(1, "The Legend of Zelda: Breath of the Wild", "Completed", "Adventure"),
+            Game(2, "Super Mario Odyssey", "Playing", "Platform"),
+            Game(3, "Cyberpunk 2077", "Pending", "RPG"),
+            Game(4, "FIFA 24", "Playing", "Sports"),
+            Game(5, "Call of Duty: Modern Warfare III", "Completed", "FPS"),
+            Game(6, "Minecraft", "Playing", "Sandbox"),
+            Game(7, "Grand Theft Auto V", "Completed", "Action"),
+            Game(8, "Among Us", "Paused", "Social Deduction"),
+            Game(9, "Fortnite", "Playing", "Battle Royale"),
+            Game(10, "The Witcher 3: Wild Hunt", "Pending", "RPG")
         )
 
         testGames.forEach { game ->
@@ -210,7 +201,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadGames() {
         lifecycleScope.launch {
-            val games = repository.getAllGames()
+            val games = repository.getAllGames().reversed()
             gameAdapter.submitList(games)
         }
     }

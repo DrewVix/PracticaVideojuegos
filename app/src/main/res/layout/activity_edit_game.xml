@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Game Image Preview -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewImagePreview"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageViewGamePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Game preview"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/image_placeholder_background" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/buttonSelectImage"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Select Image from Gallery"
+            app:layout_constraintEnd_toEndOf="@+id/cardViewImagePreview"
+            app:layout_constraintStart_toStartOf="@+id/cardViewImagePreview"
+            app:layout_constraintTop_toBottomOf="@+id/cardViewImagePreview" />
+
+        <!-- Game Name Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutGameName"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Game Name"
+            app:layout_constraintTop_toBottomOf="@+id/buttonSelectImage">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextGameName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Game Genre Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutGameGenre"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Genre"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutGameName">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextGameGenre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Game Status Dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutGameStatus"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Status"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutGameGenre">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteGameStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Players Section -->
+        <TextView
+            android:id="@+id/textViewPlayersLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Players"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutGameStatus" />
+
+        <!-- Players Dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutGamePlayers"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Add Players"
+            app:layout_constraintTop_toBottomOf="@+id/textViewPlayersLabel">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteGamePlayers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Selected Players Chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSelectedPlayers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutGamePlayers" />
+
+        <!-- Platforms Section -->
+        <TextView
+            android:id="@+id/textViewPlatformsLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Platforms"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/chipGroupSelectedPlayers" />
+
+        <!-- Platforms Dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutGamePlatforms"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Add Platforms"
+            app:layout_constraintTop_toBottomOf="@+id/textViewPlatformsLabel">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteGamePlatforms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Selected Platforms Chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSelectedPlatforms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutGamePlatforms" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/chipGroupSelectedPlatforms"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <Button
+                android:id="@+id/buttonCancelEdit"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Cancel" />
+
+            <Button
+                android:id="@+id/buttonSaveGame"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Save Changes" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

@@ -3,6 +3,7 @@ package com.example.practicavideojuegos.ui.main
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,12 +29,7 @@ class GameAdapter(private val onGameClick: (Game) -> Unit) :
             }
             binding.textViewGameStatus.setBackgroundColor(statusColor)
 
-            // Load image (you can use Glide or Picasso here)
-            if (game.image != 0) {
-                binding.imageViewGame.setImageResource(game.image)
-            } else {
-                binding.imageViewGame.setImageResource(R.drawable.image_placeholder_background)
-            }
+            binding.imageViewGame.setImageURI(game.image?.toUri())
 
             binding.root.setOnClickListener {
                 onGameClick(game)

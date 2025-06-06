@@ -1,11 +1,14 @@
 package com.example.practicavideojuegos.ui.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.practicavideojuegos.R
@@ -14,6 +17,7 @@ import com.example.practicavideojuegos.data.entity.Game
 import com.example.practicavideojuegos.data.entity.Platform
 import com.example.practicavideojuegos.data.repository.GameRepository
 import com.example.practicavideojuegos.databinding.ActivityDetailGameBinding
+import com.example.practicavideojuegos.ui.edit.EditGameActivity
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
@@ -22,9 +26,19 @@ class GameDetailActivity : AppCompatActivity() {
     private lateinit var repository: GameRepository
     private lateinit var playerAdapter: PlayerAdapter
     private lateinit var game: Game
+    private var gameId: Int = -1
 
     companion object {
         const val EXTRA_GAME_ID = "extra_game_id"
+    }
+
+    // Registrar el launcher para el resultado
+    private val editGameLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            loadGameDetails(gameId)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +55,7 @@ class GameDetailActivity : AppCompatActivity() {
         setupRecyclerView()
         setupButtons()
 
-        val gameId = intent.getIntExtra(EXTRA_GAME_ID, -1)
+        gameId = intent.getIntExtra(EXTRA_GAME_ID, -1)
         if (gameId != -1) {
             loadGameDetails(gameId)
         } else {
@@ -59,9 +73,9 @@ class GameDetailActivity : AppCompatActivity() {
 
     private fun setupButtons() {
         binding.buttonEditGame.setOnClickListener {
-            // TODO: Navigate to edit game activity
-            // For now, just show a toast
-            android.widget.Toast.makeText(this, "Edit functionality coming soon", android.widget.Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, EditGameActivity::class.java)
+            intent.putExtra(EditGameActivity.EXTRA_GAME_ID, game.id)
+            editGameLauncher.launch(intent)
         }
 
         binding.buttonDeleteGame.setOnClickListener {
@@ -105,11 +119,7 @@ class GameDetailActivity : AppCompatActivity() {
         binding.textViewGameStatus.setBackgroundColor(statusColor)
 
         // Set game image
-        if (game.image != 0) {
-            binding.imageViewGameDetail.setImageResource(game.image)
-        } else {
-            binding.imageViewGameDetail.setImageResource(R.drawable.image_placeholder_background)
-        }
+        binding.imageViewGameDetail.setImageURI(game.image?.toUri())
     }
 
     private fun loadPlayers(gameId: Int) {
@@ -195,5 +205,9 @@ class GameDetailActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 }

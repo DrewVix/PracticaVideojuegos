@@ -54,16 +54,15 @@ interface RelationshipDao {
     @Query("SELECT COUNT(*) > 0 FROM game_platform WHERE gameId = :gameId AND platformId = :platformId")
     suspend fun isPlatformAssignedToGame(gameId: Int, platformId: Int): Boolean
 
-    // ===== BULK OPERATIONS =====
-    @Query("DELETE FROM game_player WHERE gameId = :gameId")
-    suspend fun removeAllPlayersFromGame(gameId: Int)
-
-    @Query("DELETE FROM game_platform WHERE gameId = :gameId")
-    suspend fun removeAllPlatformsFromGame(gameId: Int)
-
     @Query("DELETE FROM game_player WHERE playerId = :playerId")
     suspend fun removePlayerFromAllGames(playerId: Int)
 
     @Query("DELETE FROM game_platform WHERE platformId = :platformId")
     suspend fun removePlatformFromAllGames(platformId: Int)
+
+    @Query("DELETE FROM game_player WHERE gameId = :gameId")
+    suspend fun removeAllPlayersFromGame(gameId: Int)
+
+    @Query("DELETE FROM game_platform WHERE gameId = :gameId")
+    suspend fun removeAllPlatformsFromGame(gameId: Int)
 }
